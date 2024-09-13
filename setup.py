@@ -11,6 +11,9 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
     ],
+    package_data={
+        '': ['templates/*.html'],
+    },
     install_requires=['setuptools','python3-flask'],
     zip_safe=True,
     maintainer='corvus',
