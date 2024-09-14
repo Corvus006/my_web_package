@@ -1,7 +1,7 @@
 import cv2
 import time
 import numpy as np
-from flask import Flask, render_template, Response
+from flask import Flask, render_template, Response,request, jsonify
 from threading import Thread
 import rclpy
 from rclpy.node import Node
@@ -20,7 +20,7 @@ class WebNode(Node):
             self.image_callback,
             10)
         
-        self.current_image = None  # Placeholder for the current image
+        self.current_image = None  # Placeholder for the current imag
 
         @self.app.route('/')
         def home():
@@ -30,6 +30,21 @@ class WebNode(Node):
         @self.app.route('/video_feed')
         def video_feed():
             return Response(self.generate_image_stream(), mimetype='multipart/x-mixed-replace; boundary=frame')
+        
+        @self.app.route('/joystick_data', methods=['POST'])
+        def joystick_data():
+            data = request.json
+            left_x = data.get('left_x')
+            left_y = data.get('left_y')
+            right_x = data.get('right_x')
+            right_y = data.get('right_y')
+
+            print(f"Left joystick: X={left_x}, Y={left_y}")
+            print(f"Right joystick: X={right_x}, Y={right_y}")
+
+            # Process the data here (e.g., control a robot)
+            
+            return jsonify({"status": "success"})
 
         # Start Flask in a separate thread to avoid blocking the ROS2 node
         self.web_thread = Thread(target=self.run_web)

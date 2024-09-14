@@ -26,7 +26,7 @@ function handleGamepadInput() {
     if (gamepads[0]) {
         const gamepad = gamepads[0];
         const maxOffset = 75;
-        const deadZone = 0.1;
+        const deadZone = 0.15;
         
         const leftStickX = Math.max(-maxOffset, Math.min(maxOffset, (Math.abs(gamepad.axes[0]) > deadZone ? gamepad.axes[0] : 0) * maxOffset));
         const leftStickY = Math.max(-maxOffset, Math.min(maxOffset, (Math.abs(gamepad.axes[1]) > deadZone ? gamepad.axes[1] : 0 ) * maxOffset));
@@ -38,6 +38,8 @@ function handleGamepadInput() {
         
         updateJoystick('left-joystick', leftStickX, leftStickY);
         updateJoystick('right-joystick', rightStickX, rightStickY);
+
+        sendJoystickData(leftStickX,leftStickY,rightStickX,rightStickY);
     }
 }
 
