@@ -39,7 +39,7 @@ class WebNode(Node):
         # Decode the received image
         np_arr = np.frombuffer(msg.data, np.uint8)
         self.current_image = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
-        self.get_logger().info('Image received and processed')
+        #self.get_logger().info('Image received and processed')
 
     def generate_image_stream(self):
         while True:

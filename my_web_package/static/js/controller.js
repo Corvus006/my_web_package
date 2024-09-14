@@ -7,11 +7,11 @@ function updateJoystick(id, x, y) {
     
     if (joystickContainer && joystickInner) {
         // Size of the inner joystick
-        const joystickSize = 80; // The size of the inner joystick (80px)
+        const joystickSize = 75; // The size of the inner joystick (80px)
         const halfJoystickSize = joystickSize / 2;
 
         // Calculate the offset
-        const maxOffset = 80; // The radius of the inner joystick
+        const maxOffset = 75; // The radius of the inner joystick
         const offsetX = Math.max(-maxOffset, Math.min(maxOffset, x));
         const offsetY = Math.max(-maxOffset, Math.min(maxOffset, y));
 
@@ -25,7 +25,7 @@ function handleGamepadInput() {
     const gamepads = navigator.getGamepads();
     if (gamepads[0]) {
         const gamepad = gamepads[0];
-        const maxOffset = 80;
+        const maxOffset = 75;
         const deadZone = 0.1;
         
         const leftStickX = Math.max(-maxOffset, Math.min(maxOffset, (Math.abs(gamepad.axes[0]) > deadZone ? gamepad.axes[0] : 0) * maxOffset));
@@ -49,9 +49,28 @@ function gameLoop() {
 
 // Event listener for gamepad connections
 window.addEventListener('gamepadconnected', () => {
-    console.log('Gamepad connected!');
     gameLoop();
 });
+
+// Gamepad API
+window.addEventListener("gamepadconnected", (event) => {
+    const gamepad = event.gamepad;
+    console.log("Controller connected:", gamepad);
+
+    // Polling loop to read gamepad input
+    function pollGamepad() {
+        const gp = navigator.getGamepads()[gamepad.index];
+        if (gp) {
+            console.log("Axes:", gp.axes);
+            console.log("Buttons:", gp.buttons);
+
+            // Process gamepad input here
+        }
+        requestAnimationFrame(pollGamepad);
+    }
+    pollGamepad();
+});
+
 
 window.addEventListener('gamepaddisconnected', () => {
     console.log('Gamepad disconnected.');
