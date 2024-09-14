@@ -1,13 +1,26 @@
-<!-- templates/index.html -->
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ROS2 WebNode</title>
+    <title>Web Control</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
-    <h1>Willkommen zu meiner ROS2-Node Website!</h1>
-    <p>Dies ist eine Seite, die von einer ROS2-Node gehostet wird.</p>
+    <div id="left-joystick">
+        <div class="joystick-inner"></div>
+    </div>
+    
+    <div id="image-container">
+        <img id="stream" src="{{ url_for('video_feed') }}" width="640" height="480">
+    </div>
+
+    <div id="right-joystick">
+        <div class="joystick-inner"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/nipplejs@0.9.0/dist/nipplejs.min.js"></script>
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/controller.js') }}"></script>
 </body>
 </html>
