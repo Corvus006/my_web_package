@@ -1,23 +1,96 @@
-var rightX = 0,rightY = 0,leftX = 0,leftY = 0;
 
-function sendJoystickData(leftX, leftY, rightX, rightY) {
-    fetch('/joystick_data', {
+var rightX = 0, rightY = 0, leftX = 0, leftY = 0;
+var enable = false, disable = false;
+const speedMulti = 1;
+var linearX = 0, linearY = 0, angularZ = 0;
+
+document.getElementById('activate-btn').addEventListener('click', () => {
+    enable = true;
+    sendMessage();
+    enable = false;
+});
+
+document.getElementById('deactivate-btn').addEventListener('click', () => {
+    disable = true;
+    sendMessage();
+    disable = false;
+});
+
+document.getElementById('control-switch').addEventListener('change', (event) => {
+    let controlMode = event.target.value;
+    console.log(`Control mode switched to: ${controlMode}`);
+    
+    isTouchMode = controlMode === "joystick";
+
+    // Optional: Send control mode to the server
+    fetch('/control_data', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            left_x: leftX,
-            left_y: leftY,
-            right_x: rightX,
-            right_y: rightY
+            control_mode: controlMode
+        })
+    });
+});
+
+document.getElementById('topic-select').addEventListener('change', (event) => {
+    let imageIndex = parseInt(event.target.value);
+    fetch('/control_data', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            image_index: imageIndex
+        })
+    });
+});
+
+function useJoystickData(leftX, leftY, rightX, rightY) {
+    linearX = -leftY * speedMulti;
+    linearY = -leftX * speedMulti;
+    angularZ = rightX * speedMulti;
+    sendMessage();
+}
+
+function useControllerData(leftX, leftY, rightX, rightY, leftTrigger, rightTrigger, buttons) {
+    enable = buttons[0].pressed;
+    disable = buttons[1].pressed;
+
+    let speed = (rightTrigger + 1) / 2 * speedMulti;
+    linearY = -leftX * speed;
+    linearX = -leftY * speed;
+    angularZ = rightX * speed;
+
+    console.log("speed: ", speed);
+    console.log("linearX: ", linearX);
+    sendMessage();
+}
+
+function sendMessage() {
+    fetch('/control_data', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            linear_x: linearX,
+            linear_y: linearY,
+            angular_z: angularZ,
+            enable_robot: enable,
+            disable_robot: disable
         }),
     })
     .then(response => response.json())
     .then(data => {
-        console.log('Success:', data);
+        console.log('Response:', data);
     })
     .catch((error) => {
         console.error('Error:', error);
     });
+
+    // Reset flags
+    enable = false;
+    disable = false;
 }
