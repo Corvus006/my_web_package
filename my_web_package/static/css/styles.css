@@ -1,7 +1,6 @@
 body {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
     height: 100vh;
     background-color: #000000;
     font-family: Arial, sans-serif;
@@ -10,47 +9,48 @@ body {
     overflow: hidden;
 }
 
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: #d35100;
+    position: relative; /* Position relative for stacking context */
+    z-index: 1; /* Ensure header is on top of other content */
+}
+
+header select {
+    padding: 10px;
+    font-size: 16px;
+    background-color: #d35100;
+    color: #ffffff;
+}
+
 button, select {
     padding: 10px;
     font-size: 16px;
-}
-
-.toggle {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    position: absolute;
-    top: 10px;
-    right: 10px;
     background-color: #d35100;
-    padding: 10px;
+    color: #ffffff;
+    border: none;
     border-radius: 5px;
+    cursor: pointer;
 }
 
-#activate-btn, #deactivate-btn {
+button {
     width: 150px;
     height: 150px;
-    background-color: #d35100;
-    border-radius: 10%;
-    position: absolute;
-    bottom: 20px;
 }
 
 #activate-btn {
+    position: absolute;
+    bottom: 20px;
     left: 20px;
 }
 
 #deactivate-btn {
-    right: 20px;
-}
-
-#topic-select {
     position: absolute;
-    top: 10px;
-    left: 10px;
-    background-color: #d35100;
-    padding: 10px;
-    border-radius: 5px;
+    bottom: 20px;
+    right: 20px;
 }
 
 #left-joystick, #right-joystick {
@@ -83,20 +83,22 @@ button, select {
 }
 
 #image-container {
-    flex: 1;
-    background-color: #151515;
-    margin: 0 170px; /* Adjusted for better spacing */
-    width: auto;
-    height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
+    position: absolute;
+    top: 60px; /* Adjusted to account for header height */
+    bottom: 0;
+    left: 170px; /* Adjust according to joystick width */
+    right: 170px; /* Adjust according to joystick width */
+    overflow: hidden;
+    z-index: 0; /* Ensure image container is below the header */
 }
 
 #image-container img {
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    object-fit: contain; /* Ensures the image maintains its aspect ratio */
 }
 
 /* Responsive adjustments */
@@ -112,6 +114,7 @@ button, select {
     }
 
     #image-container {
-        margin: 0 80px; /* Adjusted for smaller screens */
+        left: 100px; /* Adjust according to joystick width */
+        right: 100px; /* Adjust according to joystick width */
     }
 }

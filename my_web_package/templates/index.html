@@ -7,30 +7,32 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
-    
-    <button id="activate-btn">Roboter Aktivieren</button>
-    <button id="deactivate-btn">Roboter Deaktivieren</button>
+    <header>
+        <div>
+            <label for="control-switch">Steuerungsmodus: </label>
+            <select id="control-switch">
+                <option value="controller">Controller</option>
+                <option value="joystick">Touch-Joystick</option>
+            </select>
+        </div>
 
-    <div class="toggle">
-        <label for="control-switch">Steuerungsmodus: </label>
-        <select id="control-switch">
-            <option value="controller">Controller</option>
-            <option value="joystick">Touch-Joystick</option>
-        </select>
-    </div>
-
-    <div>
-        <label for="topic-select">Kamerawahl:</label>
-        <select id="topic-select">
-            <option value="0">Front</option>
-            <option value="1">Rear</option>
-            <option value="2">Gripper</option>
-            <option value="3">Thermal</option>
-            <option value="4">Motion</option>
-        </select>
-    </div>
+        <div>
+            <label for="topic-select">Kamerawahl:</label>
+            <select id="topic-select">
+                <option value="0">Front</option>
+                <option value="1">Rear</option>
+                <option value="2">Gripper</option>
+                <option value="3">Thermal</option>
+                <option value="4">Motion</option>
+            </select>
+        </div>
+    </header>
 
     <div id="left-joystick">
+        <div class="joystick-inner"></div>
+    </div>
+
+    <div id="right-joystick">
         <div class="joystick-inner"></div>
     </div>
 
@@ -38,9 +40,8 @@
         <img id="stream" src="{{ url_for('video_feed') }}" width="640" height="480">
     </div>
 
-    <div id="right-joystick">
-        <div class="joystick-inner"></div>
-    </div>
+    <button id="activate-btn">Roboter Aktivieren</button>
+    <button id="deactivate-btn">Roboter Deaktivieren</button>
 
     <script src="https://cdn.jsdelivr.net/npm/nipplejs@0.9.0/dist/nipplejs.min.js"></script>
     <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
