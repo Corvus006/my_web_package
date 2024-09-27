@@ -1,5 +1,5 @@
 
-var rightX = 0, rightY = 0, leftX = 0, leftY = 0;
+var rightX = 0, rightY = 0, leftX = 0, leftY = 0, image_index = 0;
 var enable = false, disable = false;
 const speedMulti = 1;
 var linearX = 0, linearY = 0, angularZ = 0;
@@ -19,32 +19,12 @@ document.getElementById('deactivate-btn').addEventListener('click', () => {
 document.getElementById('control-switch').addEventListener('change', (event) => {
     let controlMode = event.target.value;
     console.log(`Control mode switched to: ${controlMode}`);
-    
-    isTouchMode = controlMode === "joystick";
-
-    // Optional: Send control mode to the server
-    fetch('/control_data', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            control_mode: controlMode
-        })
-    });
+    isTouchMode = controlMode === "joystick";    
 });
 
 document.getElementById('topic-select').addEventListener('change', (event) => {
-    let imageIndex = parseInt(event.target.value);
-    fetch('/control_data', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            image_index: imageIndex
-        })
-    });
+    image_index = parseInt(event.target.value);
+    sendMessage();
 });
 
 function useJoystickData(leftX, leftY, rightX, rightY) {
@@ -79,7 +59,8 @@ function sendMessage() {
             linear_y: linearY,
             angular_z: angularZ,
             enable_robot: enable,
-            disable_robot: disable
+            disable_robot: disable,
+            image_index:image_index
         }),
     })
     .then(response => response.json())

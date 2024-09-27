@@ -6,12 +6,16 @@ from threading import Thread
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import CompressedImage
+from geometry_msgs.msg import Twist
 
 class WebNode(Node):
     def __init__(self):
         super().__init__('web_node')
         self.get_logger().info('Starting WebNode')
         self.app = Flask(__name__)
+
+        # Initialize Twist message
+        self.twist_msg = Twist()
 
         # Subscriber for compressed images
         self.front_subscriber = self.create_subscription(
@@ -54,6 +58,13 @@ class WebNode(Node):
 
         self.picked_image = "front"  # Default image
 
+        # Twist publisher for robot movement
+        self.cmd_vel_publisher = self.create_publisher(Twist, '/cmd_vel', 10)
+
+        # Start the 60Hz publisher loop in a separate thread
+        self.twist_thread = Thread(target=self.publish_twist_loop)
+        self.twist_thread.start()
+
         @self.app.route('/')
         def home():
             return render_template('index.html')
@@ -66,33 +77,29 @@ class WebNode(Node):
         @self.app.route('/control_data', methods=['POST'])
         def control_data():
             data = request.json
-            linear_x = data.get('linear_x')
-            linear_y = data.get('linear_y')
-            angular_z = data.get('angular_z')
-            enable_robot = data.get('enable_robot')
-            disable_robot = data.get('disable_robot')
+            try:
+                linear_x = float(data.get('linear_x', 0.0))  # Ensure the value is a float
+                linear_y = float(data.get('linear_y', 0.0))
+                angular_z = float(data.get('angular_z', 0.0))
+            except ValueError:
+                return jsonify({"error": "Invalid control data values"}), 400
+
             image_index = data.get('image_index')
 
             print(f"Received control data: linear_x={linear_x}, linear_y={linear_y}, angular_z={angular_z}")
-            print(f"Enable robot: {enable_robot}, Disable robot: {disable_robot}")
+            # Update the twist message (this will be published at 60Hz in a loop)
+            self.update_twist(linear_x, linear_y, angular_z)
+            
             
             # Update the selected image
             image_topics = ["front", "rear", "gripper", "thermal", "motion"]
-
-            # Ensure image_index and image_topics are valid
-            if image_index is None or not isinstance(image_index, int):
-                return jsonify({"error": "Invalid image_index"}), 400
-            
-            if image_topics is None or not isinstance(image_topics, list):
-                return jsonify({"error": "Invalid image_topics"}), 400
-
-            if 0 <= image_index < len(image_topics):
+            if image_index is not None and 0 <= image_index < len(image_topics):
                 self.picked_image = image_topics[image_index]
             else:
-                print(f"Invalid image index: {image_index}")
-                return jsonify({"error": "Image index out of range"}), 400
+                return jsonify({"error": "Invalid image index"}), 400
 
             return jsonify({"status": "success"})
+
 
         # Start Flask in a separate thread to avoid blocking the ROS2 node
         self.web_thread = Thread(target=self.run_web)
@@ -129,6 +136,20 @@ class WebNode(Node):
                 yield (b'--frame\r\n'
                        b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
             time.sleep(0.1)
+
+    def update_twist(self, linear_x, linear_y, angular_z):
+        """Update the Twist message with new control data."""
+        self.twist_msg.linear.x = linear_x
+        self.twist_msg.linear.y = linear_y
+        self.twist_msg.angular.z = angular_z
+        print(f"Updated Twist: linear_x={linear_x}, linear_y={linear_y}, angular_z={angular_z}")
+
+    def publish_twist_loop(self):
+        """Publish the Twist message at 60Hz."""
+        rate = self.create_rate(60)  # 60Hz
+        while rclpy.ok():
+            self.cmd_vel_publisher.publish(self.twist_msg)
+            rate.sleep()
 
     def run_web(self):
         self.app.run(host='0.0.0.0', port=5000, debug=True, use_reloader=False)
