@@ -58,8 +58,8 @@ function sendMessage() {
             linear_x: linearX,
             linear_y: linearY,
             angular_z: angularZ,
-            enable_robot: enable,
-            disable_robot: disable,
+            enable: enable,
+            disable: disable,
             image_index:image_index
         }),
     })

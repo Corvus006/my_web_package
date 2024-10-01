@@ -7,6 +7,7 @@ import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import CompressedImage
 from geometry_msgs.msg import Twist
+from std_srvs.srv import SetBool  # Importiere den SetBool Service
 
 class WebNode(Node):
     def __init__(self):
@@ -17,7 +18,12 @@ class WebNode(Node):
         # Initialize Twist message
         self.twist_msg = Twist()
 
-        # Subscriber for compressed images
+        self.cliWorks = False
+
+        # Service Client for SetBool
+        self.enable_client = self.create_client(SetBool, 'eduard/enable')
+
+        # Subscriber for Images
         self.front_subscriber = self.create_subscription(
             CompressedImage,
             '/front/compressed',
@@ -58,10 +64,9 @@ class WebNode(Node):
 
         self.picked_image = "front"  # Default image
 
-        # Twist publisher for robot movement
+        # Twist publisher
         self.cmd_vel_publisher = self.create_publisher(Twist, '/cmd_vel', 10)
 
-        # Start the 60Hz publisher loop in a separate thread
         self.twist_thread = Thread(target=self.publish_twist_loop)
         self.twist_thread.start()
 
@@ -81,15 +86,29 @@ class WebNode(Node):
                 linear_x = float(data.get('linear_x', 0.0))  # Ensure the value is a float
                 linear_y = float(data.get('linear_y', 0.0))
                 angular_z = float(data.get('angular_z', 0.0))
+                image_index = data.get('image_index',0)
+                enable = data.get('enable', False)
+                disable= data.get('disable',False) 
             except ValueError:
                 return jsonify({"error": "Invalid control data values"}), 400
 
-            image_index = data.get('image_index')
-
-            print(f"Received control data: linear_x={linear_x}, linear_y={linear_y}, angular_z={angular_z}")
+            print(f"Received control data: linear_x={linear_x}, linear_y={linear_y}, angular_z={angular_z}, disable={disable}, enable={enable}")
             # Update the twist message (this will be published at 60Hz in a loop)
             self.update_twist(linear_x, linear_y, angular_z)
             
+            if enable  and not self.cliWorks:
+                self.cliWorks = True
+                self.call_enable_service(True)
+                self.cliWorks = False
+            elif disable  and not self.cliWorks:
+                self.cliWorks = True
+                self.call_enable_service(False)
+                self.cliWorks = False
+            elif enable  and disable and not self.cliWorks:
+                enable = False
+                disable = False
+            elif self.cliWorks:
+                print("Something did go wrong with the service")
             
             # Update the selected image
             image_topics = ["front", "rear", "gripper", "thermal", "motion"]
@@ -101,9 +120,23 @@ class WebNode(Node):
             return jsonify({"status": "success"})
 
 
-        # Start Flask in a separate thread to avoid blocking the ROS2 node
         self.web_thread = Thread(target=self.run_web)
         self.web_thread.start()
+
+    def call_enable_service(self, status):
+        req = SetBool.Request()
+        req.data = status 
+        future = self.enable_client.call_async(req)
+
+        # Wait for the service to complete, with a timeout
+        rclpy.spin_until_future_complete(self, future, timeout_sec=5.0)  # Timeout after 5 seconds
+
+        if future.result() is not None:
+            self.get_logger().info(f'Service call succeeded: {future.result().message}')
+        elif future.done() and future.result() is None:
+            self.get_logger().error('Service call failed: No response from server.')
+        else:
+            self.get_logger().error('Service call failed: Service timed out or encountered an error.')
 
     def front_image_callback(self, msg):
         self.images["front"] = self.decode_image(msg)
