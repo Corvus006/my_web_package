@@ -17,10 +17,10 @@ class BoolService(Node):
         
         if request.data:
             response.success = True
-            response.message = "Die Eingabe war True."
+            response.message = "Input was True."
         else:
             response.success = False
-            response.message = "Die Eingabe war False."
+            response.message = "Input was False."
         
         return response
 
