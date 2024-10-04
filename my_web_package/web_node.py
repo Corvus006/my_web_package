@@ -65,7 +65,7 @@ class WebNode(Node):
         self.picked_image = "front"  # Default image
 
         # Twist publisher
-        self.cmd_vel_publisher = self.create_publisher(Twist, '/cmd_vel', 10)
+        self.cmd_vel_publisher = self.create_publisher(Twist, '/turtle1/cmd_vel', 10)
 
         self.twist_thread = Thread(target=self.publish_twist_loop)
         self.twist_thread.start()

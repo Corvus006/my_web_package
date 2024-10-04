@@ -1,4 +1,4 @@
-let isTouchMode = false;
+let isTouchMode = true;
 
 function updateJoystick(id, x, y) {
     const joystickInner = document.querySelector(`#${id} .joystick-inner`);
