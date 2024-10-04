@@ -9,7 +9,7 @@
 <body>
     <header>
         <div>
-            <label for="control-switch">Steuerungsmodus: </label>
+            <label for="control-switch">Control-Mode: </label>
             <select id="control-switch">
                 <option value="joystick">Touch-Joystick</option>
                 <option value="controller">Controller</option>
@@ -40,8 +40,8 @@
         <img id="stream" src="{{ url_for('video_feed') }}" width="640" height="480">
     </div>
 
-    <button id="activate-btn">Roboter Aktivieren</button>
-    <button id="deactivate-btn">Roboter Deaktivieren</button>
+    <button id="activate-btn">Enable</button>
+    <button id="deactivate-btn">Disable</button>
 
     <script src="{{ url_for('static', filename='js/nipplejs.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
