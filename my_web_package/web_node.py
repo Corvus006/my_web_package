@@ -7,7 +7,7 @@ import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import CompressedImage
 from geometry_msgs.msg import Twist
-from std_srvs.srv import SetBool  # Importiere den SetBool Service
+from std_srvs.srv import SetBool  
 
 class WebNode(Node):
     def __init__(self):
