@@ -16,12 +16,6 @@ document.getElementById('deactivate-btn').addEventListener('click', () => {
     disable = false;
 });
 
-document.getElementById('control-switch').addEventListener('change', (event) => {
-    let controlMode = event.target.value;
-    console.log(`Control mode switched to: ${controlMode}`);
-    isTouchMode = controlMode === "joystick";    
-});
-
 document.getElementById('topic-select').addEventListener('change', (event) => {
     image_index = parseInt(event.target.value);
     sendMessage();

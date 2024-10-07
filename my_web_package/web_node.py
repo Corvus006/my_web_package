@@ -86,7 +86,7 @@ class WebNode(Node):
                 linear_x = float(data.get('linear_x', 0.0))  # Ensure the value is a float
                 linear_y = float(data.get('linear_y', 0.0))
                 angular_z = float(data.get('angular_z', 0.0))
-                image_index = data.get('image_index',0)
+                image_index = data.get('image_index')
                 enable = data.get('enable', False)
                 disable= data.get('disable',False) 
             except ValueError:
