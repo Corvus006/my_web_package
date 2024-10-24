@@ -12,7 +12,7 @@ setup(
         ('share/' + package_name, ['package.xml']),
     ],
     package_data={
-        '': ['templates/*.html', 'static/css/*.css', 'static/js/*.js'],
+        '': ['templates/*.html', 'static/css/*.css', 'static/js/*.js','static/images/*.png'],
     },
     install_requires=['setuptools','python3-flask'],
     zip_safe=True,

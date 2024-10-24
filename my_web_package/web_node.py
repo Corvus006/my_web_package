@@ -8,12 +8,19 @@ from rclpy.node import Node
 from sensor_msgs.msg import CompressedImage
 from geometry_msgs.msg import Twist
 from std_srvs.srv import SetBool  # Importiere den SetBool Service
+import os
 
 class WebNode(Node):
     def __init__(self):
         super().__init__('web_node')
         self.get_logger().info('Starting WebNode')
         self.app = Flask(__name__)
+
+        # Get the directory where this script is located
+        script_dir = os.path.dirname(os.path.realpath(__file__))
+
+        # Construct the path to the placeholder image
+        self.placeholder_path = os.path.join(script_dir, 'static', 'images', 'placeholder.png')
 
         # Initialize Twist message
         self.twist_msg = Twist()
@@ -164,10 +171,14 @@ class WebNode(Node):
                 # Convert image to JPEG
                 ret, jpeg = cv2.imencode('.jpg', self.images[self.picked_image])
                 frame = jpeg.tobytes()
-                
-                # Stream the image in the correct format
-                yield (b'--frame\r\n'
-                       b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+            else:
+                # Read the placeholder image
+                with open(self.placeholder_path, 'rb') as f:
+                    frame = f.read()
+
+            # Stream the image in the correct format
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
             time.sleep(0.1)
 
     def update_twist(self, linear_x, linear_y, angular_z):
