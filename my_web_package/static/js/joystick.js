@@ -32,26 +32,26 @@ leftJoystick.on('move', function (evt, data) {
     leftX = data.vector.x * 75;
     leftY = data.vector.y * -75;
     updateJoystick('left-joystick', leftX, leftY);
-    useJoystickData(leftX/75, leftY/75, rightX/75, rightY/75);
+    useJoystickData(leftX/75, leftY/75, -(rightX/75), rightY/75);
 });
 
 rightJoystick.on('move', function (evt, data) {
     rightX = data.vector.x * 75;
     rightY = data.vector.y * -75;
     updateJoystick('right-joystick', rightX, rightY);
-    useJoystickData(leftX/75, leftY/75, rightX/75, rightY/75);
+    useJoystickData(leftX/75, leftY/75, -(rightX/75), rightY/75);
 });
 
 leftJoystick.on('end', function () {
     updateJoystick('left-joystick', 0, 0);
     leftX = 0;
     leftY = 0;
-    useJoystickData(leftX, leftY, rightX, rightY);
+    useJoystickData(leftX/75, leftY/75, -(rightX/75), rightY/75);
 });
 
 rightJoystick.on('end', function () {
     updateJoystick('right-joystick', 0, 0);
     rightX = 0;
     rightY = 0;
-    useJoystickData(leftX, leftY, rightX, rightY);
+    useJoystickData(leftX/75, leftY/75, -(rightX/75), rightY/75);
 });
