@@ -30,7 +30,6 @@ class BoolService(Node):
         if self.cli.wait_for_service(timeout_sec=5.0):
             # Service aufrufen und die Antwort verarbeiten
             future = self.cli.call_async(mode_request)
-            rclpy.spin_until_future_complete(self, future)
             if future.result() is not None:
                 self.get_logger().info(f"SetMode Service Antwort: {future.result().message}")
             else:
