@@ -8,11 +8,11 @@ from edu_robot.srv import SetMode  # Import der SetMode-Nachricht
 
 class BoolService(Node):
     def __init__(self):
-        super().__init__('boo')
+        super().__init__('service_bridge')
         # Erstellen des Dienstes 'set_bool_service'
-        self.srv = self.create_service(SetBool, 'eduard/enable', self.handle_set_bool)
+        self.srv = self.create_service(SetBool, '/eduard/enable', self.handle_set_bool)
         # Erstellen des Clients für den SetMode-Service
-        self.cli = self.create_client(SetMode, 'eduard/set_mode')
+        self.cli = self.create_client(SetMode, '/eduard/set_mode')
         self.get_logger().info('Service "set_bool_service" bereit')
 
     def handle_set_bool(self, request, response):
@@ -22,9 +22,10 @@ class BoolService(Node):
         # Erstellen der Anfrage für SetMode
         mode_request = SetMode.Request()
         if request.data:
-            mode_request.mode = 2  # Sende 2 bei True
+            mode_request.mode._mode = 2  # Sende 2 bei True
         else:
-            mode_request.mode = 1  # Sende 1 bei False
+            mode_request.mode._mode = 1  # Sende 1 bei False
+        # { mode: { mode: N } }
         
         # Warten, bis der Service verfügbar ist
         if self.cli.wait_for_service(timeout_sec=5.0):
