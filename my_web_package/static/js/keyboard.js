@@ -2,8 +2,8 @@ window.addEventListener('keydown', handleKeyPress);
 window.addEventListener('keyup', handleKeyRelease);
 
 
-function handleKeyPress(event) {
-    switch(event.key) {
+function handleKeyPress({key}) {
+    switch(key) {
         case 'W':
         case 'w':
             linearX = 1;
@@ -32,8 +32,8 @@ function handleKeyPress(event) {
     sendMessage();
 }
 
-function handleKeyRelease(event) {
-    switch(event.key) {
+function handleKeyRelease({key}) {
+    switch(key) {
         case 'W':
         case 'w':
         case 'S':

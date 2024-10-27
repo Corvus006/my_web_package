@@ -6,7 +6,7 @@ from std_srvs.srv import SetBool
 
 class BoolService(Node):
     def __init__(self):
-        super().__init__('bool_service')
+        super().__init__('bool_service_test')
         # Erstellen des Dienstes 'set_bool_service'
         self.srv = self.create_service(SetBool, 'eduard/enable', self.handle_set_bool)
         self.get_logger().info('Service "set_bool_service" bereit')

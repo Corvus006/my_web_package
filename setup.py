@@ -24,7 +24,8 @@ setup(
     entry_points={
         'console_scripts': [
             'web_node = my_web_package.web_app:main',
-            'service = my_web_package.service:main'
+            'service_test = my_web_package.service_test:main',
+            'service_bridge = my_web_package.service_bridge:main'
         ],
     },
 )
