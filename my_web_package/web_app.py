@@ -1,5 +1,3 @@
-# web_app.py
-
 import os
 import cv2
 import time
@@ -17,7 +15,6 @@ class WebApp:
         def home():
             return render_template('index.html')
 
-        # Video stream route
         @self.app.route('/video_feed')
         def video_feed():
             return Response(self.generate_image_stream(), mimetype='multipart/x-mixed-replace; boundary=frame')

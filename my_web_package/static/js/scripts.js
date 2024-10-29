@@ -28,20 +28,6 @@ function useJoystickData(leftX, leftY, rightX, rightY) {
     sendMessage();
 }
 
-function useControllerData(leftX, leftY, rightX, rightY, leftTrigger, rightTrigger, buttons) {
-    enable = buttons[0].pressed;
-    disable = buttons[1].pressed;
-
-    let speed = (rightTrigger + 1) / 2 * speedMulti;
-    linearY = -leftX * speed;
-    linearX = -leftY * speed;
-    angularZ = rightX * speed;
-
-    console.log("speed: ", speed);
-    console.log("linearX: ", linearX);
-    sendMessage();
-}
-
 function sendMessage() {
     fetch('/control_data', {
         method: 'POST',

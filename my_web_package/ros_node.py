@@ -25,7 +25,7 @@ class ROSNode(Node):
         self.cliWorks = False
 
         # Service Client for SetBool
-        self.enable_client = self.create_client(SetBool, 'eduard/enable')
+        self.enable_client = self.create_client(SetBool, 'wgg/enable')
 
         # ROS2 Subscribers
         self.front_subscriber = self.create_subscription(
@@ -54,7 +54,7 @@ class ROSNode(Node):
         self.picked_image = "front"  # Default image
 
         # Twist publisher
-        self.cmd_vel_publisher = self.create_publisher(Twist, '/eduard/cmd_vel', 10)
+        self.cmd_vel_publisher = self.create_publisher(Twist, '/wgg/cmd_vel', 10)
 
         self.twist_thread = Thread(target=self.publish_twist_loop)
         self.twist_thread.start()
