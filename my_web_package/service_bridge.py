@@ -1,17 +1,32 @@
 import rclpy
 from rclpy.node import Node
 from std_srvs.srv import SetBool
-
 from edu_robot.srv import SetMode  # Import the SetMode service
 
 class BoolService(Node):
     def __init__(self):
         super().__init__('service_bridge')
+
+        # Declare parameters with default values
+        self.declare_parameter('enable_service_name', '/enable')
+        self.declare_parameter('set_mode_service_name', '/set_mode')
+        self.declare_parameter('mode_true', 2)
+        self.declare_parameter('mode_false', 1)
+
+        # Retrieve parameters
+        enable_service_name = self.get_parameter('enable_service_name').get_parameter_value().string_value
+        set_mode_service_name = self.get_parameter('set_mode_service_name').get_parameter_value().string_value
+        self.mode_true = self.get_parameter('mode_true').get_parameter_value().integer_value
+        self.mode_false = self.get_parameter('mode_false').get_parameter_value().integer_value
+
         # Create the 'set_bool_service' service
-        self.srv = self.create_service(SetBool, '/wgg/enable', self.handle_set_bool)
+        self.srv = self.create_service(SetBool, enable_service_name, self.handle_set_bool)
+        
         # Create a client for the SetMode service
-        self.cli = self.create_client(SetMode, '/wgg/set_mode')
-        self.get_logger().info('Service "set_bool_service" ready')
+        self.cli = self.create_client(SetMode, set_mode_service_name)
+        
+        self.get_logger().info(f'Service "{enable_service_name}" ready')
+        self.get_logger().info(f'SetMode client connected to "{set_mode_service_name}"')
 
     def handle_set_bool(self, request, response):
         # This is where the request value is processed
@@ -19,16 +34,13 @@ class BoolService(Node):
         
         # Create a request for the SetMode service
         mode_request = SetMode.Request()
-        if request.data:
-            mode_request.mode._mode = 2  # Send 2 if True
-        else:
-            mode_request.mode._mode = 1  # Send 1 if False
-        # { mode: { mode: N } }
-        
+        mode_request.mode.mode = self.mode_true if request.data else self.mode_false
+
         # Wait for the SetMode service to become available
         if self.cli.wait_for_service(timeout_sec=5.0):
             # Call the service and process the response
             future = self.cli.call_async(mode_request)
+            rclpy.spin_until_future_complete(self, future)
             if future.result() is not None:
                 self.get_logger().info(f"SetMode service response: {future.result().message}")
             else:
@@ -37,12 +49,8 @@ class BoolService(Node):
             self.get_logger().error("SetMode service not available")
 
         # Return the response for the SetBool service
-        if request.data:
-            response.success = True
-            response.message = "Input was True. Mode set to 2."
-        else:
-            response.success = False
-            response.message = "Input was False. Mode set to 1."
+        response.success = True if request.data else False
+        response.message = f"Input was {'True' if request.data else 'False'}. Mode set to {mode_request.mode.mode}."
         
         return response
 

@@ -1,5 +1,3 @@
-# ros_node.py
-
 import os
 import time
 import numpy as np
@@ -16,6 +14,24 @@ class ROSNode(Node):
         super().__init__('ros_node')
         self.get_logger().info('Starting ROSNode')
 
+        # Declare parameters with default values
+        self.declare_parameter('front_topic', '/front/compressed')
+        self.declare_parameter('rear_topic', '/rear/compressed')
+        self.declare_parameter('gripper_topic', '/gripper/compressed')
+        self.declare_parameter('thermal_topic', '/thermal/compressed')
+        self.declare_parameter('motion_topic', '/motion/compressed')
+        self.declare_parameter('cmd_vel_topic', '/cmd_vel')
+        self.declare_parameter('enable_service', '/enable')
+
+        # Retrieve parameters
+        self.front_topic = self.get_parameter('front_topic').get_parameter_value().string_value
+        self.rear_topic = self.get_parameter('rear_topic').get_parameter_value().string_value
+        self.gripper_topic = self.get_parameter('gripper_topic').get_parameter_value().string_value
+        self.thermal_topic = self.get_parameter('thermal_topic').get_parameter_value().string_value
+        self.motion_topic = self.get_parameter('motion_topic').get_parameter_value().string_value
+        self.cmd_vel_topic = self.get_parameter('cmd_vel_topic').get_parameter_value().string_value
+        self.enable_service = self.get_parameter('enable_service').get_parameter_value().string_value
+
         # Get the directory where this script is located
         script_dir = os.path.dirname(os.path.realpath(__file__))
         self.placeholder_path = os.path.join(script_dir, 'static', 'images', 'placeholder.png')
@@ -25,23 +41,23 @@ class ROSNode(Node):
         self.cliWorks = False
 
         # Service Client for SetBool
-        self.enable_client = self.create_client(SetBool, 'wgg/enable')
+        self.enable_client = self.create_client(SetBool, self.enable_service)
 
         # ROS2 Subscribers
         self.front_subscriber = self.create_subscription(
-            CompressedImage, '/front/compressed', self.front_image_callback, 10)
+            CompressedImage, self.front_topic, self.front_image_callback, 10)
 
         self.rear_subscriber = self.create_subscription(
-            CompressedImage, '/rear/compressed', self.rear_image_callback, 10)
+            CompressedImage, self.rear_topic, self.rear_image_callback, 10)
 
         self.gripper_subscriber = self.create_subscription(
-            CompressedImage, '/gripper/compressed', self.gripper_image_callback, 10)
+            CompressedImage, self.gripper_topic, self.gripper_image_callback, 10)
 
         self.thermal_subscriber = self.create_subscription(
-            CompressedImage, '/thermal/compressed', self.thermal_image_callback, 10)
+            CompressedImage, self.thermal_topic, self.thermal_image_callback, 10)
 
         self.motion_subscriber = self.create_subscription(
-            CompressedImage, '/motion/compressed', self.motion_image_callback, 10)
+            CompressedImage, self.motion_topic, self.motion_image_callback, 10)
 
         self.images = {
             "front": None,
@@ -54,7 +70,7 @@ class ROSNode(Node):
         self.picked_image = "front"  # Default image
 
         # Twist publisher
-        self.cmd_vel_publisher = self.create_publisher(Twist, '/wgg/cmd_vel', 10)
+        self.cmd_vel_publisher = self.create_publisher(Twist, self.cmd_vel_topic, 10)
 
         self.twist_thread = Thread(target=self.publish_twist_loop)
         self.twist_thread.start()
@@ -99,3 +115,13 @@ class ROSNode(Node):
         self.twist_msg.linear.x = linear_x
         self.twist_msg.linear.y = linear_y
         self.twist_msg.angular.z = angular_z
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = ROSNode()
+    rclpy.spin(node)
+    node.destroy_node()
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()
