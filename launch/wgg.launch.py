@@ -16,7 +16,6 @@ def generate_launch_description():
                 {'motion_topic': '/wgg/motion/compressed'},
                 {'cmd_vel_topic': '/wgg/cmd_vel'},
                 {'enable_service': '/wgg/enable'},
-                # Add other parameters specific to `web_node` here
             ]
         ),
         Node(
@@ -27,7 +26,6 @@ def generate_launch_description():
             parameters=[
                 {'enable_service_name': '/wgg/enable'},
                 {'set_mode_service_name': '/wgg/set_mode'},
-                # Add other parameters specific to `service_bridge` here
             ]
         ),
     ])
